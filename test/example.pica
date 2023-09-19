@@ -1,0 +1,27 @@
+# This is an example
+
+
+003@ 0123
+021A aEin Buchhzum Lesen
+045B/02 aSpo 1025aBID 200
+
+003@ 0789
+
+# empty record
+
+# invalid subfield code and empty field
+
+003@ 0654
+021A atitle.invalid
+021A aok
+034X
+
+003@ 0999
+ABCDEFG
+012X/AB
+234X/00A
+234X/123
+234X/123 a!
+
+# Some space
+

@@ -11,8 +11,8 @@
 
 # invalid subfield code and empty field
 
-003@ 0654
 021A atitle.invalid
+003@ 0654
 021A aok
 034X
 

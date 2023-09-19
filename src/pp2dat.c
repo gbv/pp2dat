@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdarg.h>
 
@@ -15,33 +14,39 @@ static void printUsage() {
   printf("usage: pp2dat < pica.file > pica.dat");
 }
 
-// TODO: print PPN instead of line number, if known
 static void warn(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
-  fprintf(stderr, "%d: ", lineNumber);
+  if (PPN[0]) {
+    fprintf(stderr, "%d=%s: ", lineNumber, PPN);
+  } else {
+    fprintf(stderr, "%d: ", lineNumber);
+  }
   vfprintf(stderr, msg, args);
   putc('\n',stderr);
   va_end(args);
 }
 
-static bool checkSubfields(char *sf) {
+static int checkSubfields(char *sf) {
+  int count=0;
+
   while(sf[0]) {
     if (sf[0] != '\x1F') {
       warn("expected subfield indicator");
-      return false;
+      return 0;
     }
     if (RANGE(sf[1],'0','9') || RANGE(sf[1],'a','z') || RANGE(sf[1],'A','Z')) {
      sf+=2;
     } else {
       warn("invalid subfield indicator: %c", sf[1]);
-      return false;
+      return 0;
     }
 
+    count++;
     while (sf[0] != '\x1F' && sf[0]) sf++;
   }
 
-  return true;
+  return count;
 }
 
 int main(int argc, char	**argv) {
@@ -69,6 +74,7 @@ int main(int argc, char	**argv) {
         putchar('\n'); // end of previous record
       }
       fieldCount = 0;
+      PPN[0] = 0;
       continue;
     }
     
@@ -106,7 +112,16 @@ int main(int argc, char	**argv) {
       sf++;
     }
 
-    if (checkSubfields(sf)) {
+    int sfCount = checkSubfields(sf);
+    if (sfCount > 0) {
+      if (strcmp(tag,"003@") == 0) {
+        if (sf[1] != '0' || sfCount != 1 || length > 20) { // TODO: check form of PPN
+          warn("malformed 003@: %s", sf);
+          continue;
+        } else {
+          strcpy(PPN, sf+2);
+        }
+      }
       fieldCount++;
       printf("%s %s\x1E",tag,sf);
     } else {

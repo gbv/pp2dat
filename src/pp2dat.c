@@ -77,8 +77,8 @@ static void printField(char *tag, char *sf) {
   
     // collect ILNs from 101@ unless record has 001@
     if (strcmp(tag,"001@")==0) {
-        recordHasIlns = true;
-        ilnsLength = 0;
+      recordHasIlns = true;
+      ilnsLength = 0;
     } else if (!recordHasIlns && strcmp(tag,"101@")==0) {
       if (ilnsLength + sfLength > MAX_ILNS_LENGTH) {
         warn("maximium length of ILNs exceeded");
@@ -100,6 +100,7 @@ static void endRecord() {
     if (ilnsLength > 0) {
       ilns[ilnsLength-1] = 0;
       printf("001@ \x1F" "0%s\x1E",ilns);
+      ilnsLength = 0;
     }
 
     // print current record

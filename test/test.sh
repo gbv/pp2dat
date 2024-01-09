@@ -10,12 +10,12 @@ is_equal() {
 }
 
 warnings=$(./pp2dat < ./test/example.pica 2>&1 >/dev/null)
-is_equal "warnings" "$warnings" '14: invalid subfield indicator: .
-17=654: empty field 034X
-20=999: invalid tag ABCD
-21=999: invalid tag 012X/AB
-22=999: empty field 234X/00A
-23=999: empty field 234X/123'
+is_equal "warnings" "$warnings" 'line 14: invalid subfield indicator: .
+line 17 PPN 654: empty field 034X
+line 20 PPN 999: invalid tag ABCD
+line 21 PPN 999: invalid tag 012X/AB
+line 22 PPN 999: empty field 234X/00A
+line 23 PPN 999: empty field 234X/123'
 
 pica=$(./pp2dat < ./test/example.pica 2>/dev/null)
 

@@ -30,9 +30,9 @@ static void warn(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
   if (PPN[0]) {
-    fprintf(stderr, "%d=%s: ", lineNumber, PPN);
+    fprintf(stderr, "line %d PPN %s: ", lineNumber, PPN);
   } else {
-    fprintf(stderr, "%d: ", lineNumber);
+    fprintf(stderr, "line %d: ", lineNumber);
   }
   vfprintf(stderr, msg, args);
   putc('\n',stderr);

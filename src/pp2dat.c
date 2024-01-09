@@ -2,13 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdbool.h>
 
 #define RANGE(c,a,b) (c >= a && c <= b)
+#define MAX_RECORD_LENGTH 1024*1024
+#define MAX_ILNS_LENGTH 1024*4
 
 int lineNumber = 0;
 int fieldCount = 0;
 int recordCount = 0;
 char PPN[16];
+
+size_t recordLength = 0;
+char recordBuffer[MAX_RECORD_LENGTH+1];
+
+bool recordHasIlns = false;
+size_t ilnsLength = 0;
+char ilns[MAX_ILNS_LENGTH];
+
+bool flush = false; // TODO: make CLI option
 
 static void printUsage() {
   printf("usage: pp2dat < pica.file > pica.dat");
@@ -49,6 +61,57 @@ static int checkSubfields(char *sf) {
   return count;
 }
 
+static void printField(char *tag, char *sf) {
+  if (flush) {
+    printf("%s %s\x1E",tag,sf);
+  } else {
+    size_t sfLength = strlen(sf);
+    size_t length = 2 + strlen(tag) + sfLength;
+  
+    if (recordLength + length >= MAX_RECORD_LENGTH) {
+      warn("maximum record length exceeded");
+      exit(1);
+    }
+    sprintf(recordBuffer + recordLength, "%s %s\x1E",tag,sf);
+    recordLength += length;
+  
+    // collect ILNs from 101@ unless record has 001@
+    if (strcmp(tag,"001@")==0) {
+        recordHasIlns = true;
+        ilnsLength = 0;
+    } else if (!recordHasIlns && strcmp(tag,"101@")==0) {
+      if (ilnsLength + sfLength > MAX_ILNS_LENGTH) {
+        warn("maximium length of ILNs exceeded");
+        exit(1);
+      }
+      strcpy(ilns + ilnsLength, sf + 2);
+      ilnsLength += sfLength - 1;
+      ilns[ilnsLength-1] = ',';
+    }
+  }
+}
+
+static void endRecord() {
+  if (flush) {
+    putchar('\n');
+  } else {
+
+    // first print 001@ with collected ILNs
+    if (ilnsLength > 0) {
+      ilns[ilnsLength-1] = 0;
+      printf("001@ \x1F" "0%s\x1E",ilns);
+    }
+
+    // print current record
+    recordBuffer[recordLength] = 0;
+    puts(recordBuffer);
+
+    // start new record
+    recordLength = 0;
+    recordHasIlns = false;
+  }
+}
+                       
 int main(int argc, char	**argv) {
   char *line = NULL;
   size_t bytes = 0;
@@ -71,7 +134,7 @@ int main(int argc, char	**argv) {
     // start of record
     if (line[0] == '\x1D') {
       if (recordCount++ && fieldCount) {
-        putchar('\n'); // end of previous record
+        endRecord();
       }
       fieldCount = 0;
       PPN[0] = 0;
@@ -123,14 +186,14 @@ int main(int argc, char	**argv) {
         }
       }
       fieldCount++;
-      printf("%s %s\x1E",tag,sf);
+      printField(tag,sf);
     } else {
       continue;
     }
   }    
 
   if (recordCount > 0 && fieldCount > 0) {
-    putchar('\n'); // end of last record
+    endRecord();
   }
 
   if (line != NULL)
@@ -138,3 +201,4 @@ int main(int argc, char	**argv) {
 
   return 0;
 }
+

@@ -4,7 +4,7 @@
 
 This script reads PICA+ as serialized by CBS internal C function `write_pp` and writes [normalized PICA+](https://format.gbv.de/pica/normalized) (`.dat`).
 
-CBS is a prorietary database management system by OCLC and PICA+ is its internal record format. More information about PICA+ can be found in the German Handbook *[Einführung in die Verarbeitung von PICA-Daten](https://pro4bib.github.io/pica)*. This script is needed because the internal serialization of PICA+ is neither defined openly nor strictly validated. In contrast normalized PICA+ has a short definition (one record per line with line separator `0A`, fields end with `1E`, subfields indicator `1F`) and it is supported by open source tools such as [pica-rs](https://github.com/deutsche-nationalbibliothek/pica-rs).
+CBS is a prorietary database management system by OCLC and PICA+ is its internal record format. More information about PICA+ can be found in the German Handbook *[Einführung in die Verarbeitung von PICA-Daten](https://pro4bib.github.io/pica)*. This script is needed because the internal serialization of PICA+ is neither defined openly nor strictly validated. In contrast normalized PICA+ has a short definition (one record per line with line separator `0A`, fields end with `1E`, subfields indicator `1F`) and it is supported by open source tools such as [pica-rs](https://github.com/deutsche-nationalbibliothek/pica-rs) and [QA Catalogue](https://github.com/pkiraly/qa-catalogue).
 
 The output of **pp2dat** is ensured to be syntactically valid normalized PICA+. The following is checked:
 

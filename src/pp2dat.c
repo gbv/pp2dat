@@ -113,6 +113,18 @@ static void endRecord() {
   }
 }
                        
+bool checkPPN(char *ppn, size_t length) {
+  if (length < 2 || length > 12) return false;
+
+  int sum = 0;
+  for (size_t i=0; i<length-1; i++) {
+    if (!RANGE(ppn[i],'0','9')) return false;
+    sum += (ppn[i]-'0') * (length-i);
+  }
+  sum = (11 - (sum % 11)) % 11;
+  return (sum < 10 ? sum + '0' : 'X') == ppn[length-1];
+}
+
 int main(int argc, char	**argv) {
   char *line = NULL;
   size_t bytes = 0;
@@ -179,7 +191,7 @@ int main(int argc, char	**argv) {
     int sfCount = checkSubfields(sf);
     if (sfCount > 0) {
       if (strcmp(tag,"003@") == 0) {
-        if (sf[1] != '0' || sfCount != 1 || length > 20) { // TODO: check form of PPN
+        if (sf[1] != '0' || sfCount != 1 || !checkPPN(sf+2, length-8)) {
           warn("malformed 003@: %s", sf);
           continue;
         } else {

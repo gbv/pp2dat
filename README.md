@@ -23,7 +23,11 @@ The script also collects fields `101@` and prepends field `001@` with a list of 
 
 Run `make` to compile and test the C script. Then use `./pp2dat` to as filter (read from STDIN, write to STDOUT), e.g.
 
-    cat pica.file | ./pp2dat >pica.dat 2>warnings.log
+    cat pica.file | ./pp2dat >pica.dat 2>errors.log
+
+To extract multiple PICA files from a zip archive, convert to normalized PICA+ and compress in parallel:
+
+    unzip -p archive.zip | ./pp2dat 2>errors.log | pigz > pica.dat.gz
 
 ## Development
 

@@ -8,9 +8,9 @@
 #define MAX_RECORD_LENGTH 1024*1024
 #define MAX_ILNS_LENGTH 1024*4
 
-int lineNumber = 0;
-int fieldCount = 0;
-int recordCount = 0;
+unsigned long lineNumber = 0;
+unsigned long fieldCount = 0;
+unsigned long recordCount = 0;
 char PPN[16];
 
 size_t recordLength = 0;
@@ -30,9 +30,9 @@ static void warn(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
   if (PPN[0]) {
-    fprintf(stderr, "line %d PPN %s: ", lineNumber, PPN);
+    fprintf(stderr, "line %ld PPN %s: ", lineNumber, PPN);
   } else {
-    fprintf(stderr, "line %d: ", lineNumber);
+    fprintf(stderr, "line %ld: ", lineNumber);
   }
   vfprintf(stderr, msg, args);
   putc('\n',stderr);
